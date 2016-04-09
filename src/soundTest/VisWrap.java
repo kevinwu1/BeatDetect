@@ -1,26 +1,28 @@
 package soundTest;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-public class VisWrap implements Runnable {
-	Canvas can;
+import javax.swing.JPanel;
 
-	private final int VOLUME_FADE_SPEED = 4;
-	private final int COLOR_FADE_SPEED = 1;
+public class VisWrap implements Runnable {
+	Vis v;
+
+	private final double VOLUME_FADE_SPEED = 8;
+	private final double COLOR_FADE_SPEED = 2;
+	private final double SPI_START = 30;
 
 	private double pVol = 0;
-	private double volSub = 0;
-	private double pSpi = 0;
-	private double spiSub = 0;
+	private double pUniqueVol = 0;
+	private double dispVol;
+	private double dispCol;
+	int what = 0;
 
-	VisWrap(AudioBeatPlayer hi) {
-		Vis v = new Vis();
-		v.add(can = new Canvas() {
+	VisWrap(BeatAnalyze ba, int x) {
+		v = new Vis(new JPanel() {
 			BufferedImage back;
 
 			@Override
@@ -37,34 +39,34 @@ public class VisWrap implements Runnable {
 				((Graphics2D) graphToBack).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 						RenderingHints.VALUE_ANTIALIAS_ON);
 				graphToBack.clearRect(0, 0, getWidth(), getHeight());
-				double vol = hi.getVolume();
-				int spi = 0;
-				if (vol == pVol) {
-					volSub += VOLUME_FADE_SPEED;
-					spi = 30;
+				double vol = ba.getVolume();
+				// System.out.println(vol);
+				if (vol != pVol) {
+					dispCol = SPI_START;
+					// System.out.println(what++);
 				}
-				else {
-					volSub = 0;
-					pVol = vol;
+				if (vol != pUniqueVol) {
+					if (vol > dispVol) {
+						dispVol = vol;
+					}
+					pUniqueVol = vol;
 				}
-				if (spi == pSpi)
-					spiSub += COLOR_FADE_SPEED;
-				else {
-					spiSub = 0;
-					pSpi = spi;
-				}
-				graphToBack.setColor(spi - spiSub > 0 ? Color.GREEN : Color.BLACK);
-				graphToBack.fillRect(30, 30, 200, Math.max(0, (int) (vol - volSub)) + 10);
+				dispCol -= COLOR_FADE_SPEED;
+				dispVol -= VOLUME_FADE_SPEED;
+				pVol = vol;
+				graphToBack.setColor(dispCol > 0 ? Color.GREEN : Color.WHITE);
+				graphToBack.fillRect(30, 30, 200, Math.max(0, (int) dispVol) + 10);
 				twoDGraph.drawImage(back, null, 0, 0);
 			}
-		});
+		}, x);
+		// v.setUndecorated(true);
 	}
 
 	@Override
 	public void run() {
 		try {
 			while (true) {
-				can.repaint();
+				v.canvas().repaint();
 				Thread.sleep(5);
 			}
 		}

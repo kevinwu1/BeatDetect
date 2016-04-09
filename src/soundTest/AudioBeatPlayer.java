@@ -12,18 +12,19 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioBeatPlayer implements Runnable {
-
-	AudioBeatPlayer(String path) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-		this(new File(path));
+	AudioBeatPlayer(File f, BeatAnalyze ba) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		this(f, new BeatAnalyze[] { ba });
 	}
 
-	AudioBeatPlayer(File f) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+	AudioBeatPlayer(File f, BeatAnalyze[] ba) throws UnsupportedAudioFileException, IOException,
+			LineUnavailableException {
 		ais = AudioSystem.getAudioInputStream(f);
 		format = ais.getFormat();
 		System.out.println("Sample Rate: " + format.getSampleRate());
 		BUFFER_SIZE = (int) (format.getSampleRate() / BEATS_PER_SEC);
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
 		sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+		this.ba = ba;
 	}
 
 	private final int BUFFER_SIZE;
@@ -31,7 +32,7 @@ public class AudioBeatPlayer implements Runnable {
 	private final AudioFormat format;
 	private final SourceDataLine sourceLine;
 	private final AudioInputStream ais;
-	private final BeatAnalyzer VA = new BeatAnalyzer();
+	private final BeatAnalyze[] ba;
 
 	private void play() throws IOException, LineUnavailableException, InterruptedException {
 		sourceLine.open();
@@ -44,16 +45,22 @@ public class AudioBeatPlayer implements Runnable {
 			nBytesRead = ais.read(abData, 0, BUFFER_SIZE);
 			if (nBytesRead >= 0)
 				sourceLine.write(abData, 0, nBytesRead);
-			VA.analyze(abData);
+			for (BeatAnalyze B : ba)
+				B.analyze(abData);
 			Thread.sleep(1);
 			what++;
 		}
+		System.out.println("Finished");
 		ais.close();
 		sourceLine.close();
 	}
 
+	double getVolume(int i) {
+		return ba[i].getVolume();
+	}
+
 	double getVolume() {
-		return VA.getVolume();
+		return ba[0].getVolume();
 	}
 
 	@Override

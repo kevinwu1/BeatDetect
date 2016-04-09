@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class VolumeQueue {
 	int preBuf;
 	int N;
-	int[] data;
+	double[] data;
 	int s, e;
 
 	VolumeQueue(int preBuf, int N) {
@@ -14,17 +14,17 @@ public class VolumeQueue {
 		if (preBuf > N - 2)
 			preBuf = N - 2;
 		s = 0;
-		data = new int[N];
+		data = new double[N];
 		e = preBuf + 1;
 	}
 
-	void add(int d) {
+	void add(double d) {
 		data[e] = d;
 		e = n(e);
 	}
 
-	int get() {
-		int ret = data[s];
+	double get() {
+		double ret = data[s];
 		s = n(s);
 		return ret;
 	}
