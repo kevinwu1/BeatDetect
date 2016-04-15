@@ -10,7 +10,7 @@ public class Play {
 		AudioBeatPlayer hi;
 		try {
 			BeatAnalyze s = new StdDevBeatAnalyzer(5, 0.7, 5);
-			BeatAnalyze m = new MaxBeatAnalyzer();
+			BeatAnalyze m = new MaxBeatAnalyzer(5, 3, 10);
 
 			// AudioFormat format = new AudioFormat(8000.0f, 16, 1, true, true);
 			// TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
@@ -21,8 +21,8 @@ public class Play {
 			// hi = new AudioBeatPlayer(new AudioInputStream(microphone), new BeatAnalyze[] { s, m });
 			// AudioSystem.System.out.println();
 
-			hi = new AudioBeatPlayer(new File("mus/a.wav"), new BeatAnalyze[] { s, m });
-			executor.execute(new VisWrap(s, 0));
+			hi = new AudioBeatPlayer(new File("mus/VVV.mp3"), new BeatAnalyze[] { s, m });
+			// executor.execute(new VisWrap(s, 0));
 			executor.execute(new VisWrap(m, Vis.WIDTH));
 			executor.execute(hi);
 		}

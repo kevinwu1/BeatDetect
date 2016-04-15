@@ -12,7 +12,7 @@ public class VisWrap implements Runnable {
 	Vis v;
 
 	private final double VOLUME_FADE_SPEED = 8;
-	private final double COLOR_FADE_SPEED = 1;
+	private final double COLOR_FADE_SPEED = 2;
 	private final double SPI_START = 30;
 
 	private double pVol = 0;
@@ -67,7 +67,7 @@ public class VisWrap implements Runnable {
 		try {
 			while (true) {
 				v.canvas().repaint();
-				Thread.sleep(5);
+				Thread.sleep(1);
 			}
 		}
 		catch (InterruptedException e) {
