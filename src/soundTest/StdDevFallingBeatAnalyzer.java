@@ -1,6 +1,6 @@
 package soundTest;
 
-public class StdDevBeatAnalyzer implements BeatAnalyze {
+public class StdDevFallingBeatAnalyzer implements BeatAnalyze {
 
 	private final VolumeQueue vq;
 	private double volume;
@@ -9,12 +9,15 @@ public class StdDevBeatAnalyzer implements BeatAnalyze {
 	private final int chain;
 	private final double dif;
 	private double pv;
+	private int lastPeak;
+	private double lastPeakV;
+	private int time = 0;
 
-	StdDevBeatAnalyzer() {
+	StdDevFallingBeatAnalyzer() {
 		this(2, 40, 1);
 	}
 
-	StdDevBeatAnalyzer(int chain, double dif, int avgN) {
+	StdDevFallingBeatAnalyzer(int chain, double dif, int avgN) {
 		this.chain = chain;
 		this.dif = dif;
 		vq = new VolumeQueue(0, 110) {
@@ -44,16 +47,21 @@ public class StdDevBeatAnalyzer implements BeatAnalyze {
 		else {
 			double diff = pv - chainStart;
 			if (chainLen >= chain && diff > dif) {
-				double newV = nv;
-				if (newV == volume)
-					volume = newV + 1;
-				else
-					volume = newV;
+				lastPeak = time;
+				lastPeakV = nv;
+
 			}
 			chainStart = nv;
 			chainLen = 0;
 		}
+		if (time == lastPeak + 1) {
+			if (lastPeakV == volume)
+				volume = lastPeakV + 1;
+			else
+				volume = lastPeakV;
+		}
 		pv = nv;
+		time++;
 	}
 
 	private void calcVolume(byte[] d) {
@@ -64,11 +72,12 @@ public class StdDevBeatAnalyzer implements BeatAnalyze {
 			if (d[i] == 0)
 				num0++;
 		}
-		if (num0 > 1500) {
+		if (num0 > 1000) {
 			vq.add(0);
 			return;
 		}
 		t /= d.length;
+		t /= 2;
 		double r = 0;
 		for (int i = 0; i < d.length; i++) {
 			r += (d[i] - t) * (d[i] - t);

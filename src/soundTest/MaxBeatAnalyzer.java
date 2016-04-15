@@ -37,10 +37,11 @@ public class MaxBeatAnalyzer implements BeatAnalyze {
 	public void analyze(byte[] data) {
 		calcVolume(data);
 		double nv = vq.get();
+		// System.out.println(nv);
+		double diff = pv - chainStart;
 		if (nv >= pv)
 			chainLen++;
 		else {
-			double diff = pv - chainStart;
 			if (chainLen >= chain && diff > dif) {
 				double newV = nv;
 				if (newV == volume)

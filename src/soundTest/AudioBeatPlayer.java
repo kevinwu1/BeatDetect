@@ -18,9 +18,44 @@ public class AudioBeatPlayer implements Runnable {
 
 	AudioBeatPlayer(File f, BeatAnalyze[] ba) throws UnsupportedAudioFileException, IOException,
 			LineUnavailableException {
-		ais = AudioSystem.getAudioInputStream(f);
+		if (f.getName().lastIndexOf("mp3") == f.getName().length() - 3) {
+			AudioInputStream ais1 = AudioSystem.getAudioInputStream(f);
+			format = ais1.getFormat();
+			AudioFormat decf = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, // Encoding to use
+					format.getSampleRate(), // sample rate (same as base format)
+					16, // sample size in bits (thx to Javazoom)
+					format.getChannels(), // # of Channels
+					format.getChannels() * 2, // Frame Size
+					format.getSampleRate(), // Frame Rate
+					false // Big Endian
+			);
+
+			AudioInputStream deci = AudioSystem.getAudioInputStream(decf, ais1);
+			ais = deci;
+			// System.out.println("Sample Rate: " + decf.getSampleRate());
+			int t = (int) (decf.getSampleRate() / BEATS_PER_SEC);
+			BUFFER_SIZE = t - t % 8;
+			// System.out.println(BUFFER_SIZE);
+			DataLine.Info info = new DataLine.Info(SourceDataLine.class, decf);
+			sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+			ais1.close();
+		}
+		else {
+			ais = AudioSystem.getAudioInputStream(f);
+			format = ais.getFormat();
+			BUFFER_SIZE = (int) (format.getSampleRate() / BEATS_PER_SEC);
+			DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+			sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+		}
+
+		this.ba = ba;
+
+	}
+
+	AudioBeatPlayer(AudioInputStream ais, BeatAnalyze[] ba) throws LineUnavailableException {
+		this.ais = ais;
 		format = ais.getFormat();
-		System.out.println("Sample Rate: " + format.getSampleRate());
+		// System.out.println("Sample Rate: " + format.getSampleRate());
 		BUFFER_SIZE = (int) (format.getSampleRate() / BEATS_PER_SEC);
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
 		sourceLine = (SourceDataLine) AudioSystem.getLine(info);

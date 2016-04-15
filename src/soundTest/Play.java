@@ -1,12 +1,8 @@
 package soundTest;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class Play {
 	public static void main(String[] args) {
@@ -16,13 +12,26 @@ public class Play {
 			BeatAnalyze s = new StdDevBeatAnalyzer(5, 0.7, 5);
 			BeatAnalyze m = new MaxBeatAnalyzer();
 
-			hi = new AudioBeatPlayer(new File("mus/v.wav"), new BeatAnalyze[] { s, m });
+			// AudioFormat format = new AudioFormat(8000.0f, 16, 1, true, true);
+			// TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
+			// DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+			// microphone = (TargetDataLine) AudioSystem.getLine(info);
+			// microphone.open(format);
+			// microphone.start();
+			// hi = new AudioBeatPlayer(new AudioInputStream(microphone), new BeatAnalyze[] { s, m });
+			// AudioSystem.System.out.println();
+
+			hi = new AudioBeatPlayer(new File("mus/a.wav"), new BeatAnalyze[] { s, m });
 			executor.execute(new VisWrap(s, 0));
 			executor.execute(new VisWrap(m, Vis.WIDTH));
 			executor.execute(hi);
 		}
-		catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+		catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+		// e.printStackTrace();
+		// }
 	}
 }
