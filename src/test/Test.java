@@ -20,14 +20,14 @@ public class Test {
 		AudioInputStream din = null;
 		try {
 			File file = new File(filename);
+			@SuppressWarnings("resource")
 			AudioInputStream in = AudioSystem.getAudioInputStream(file);
 			AudioFormat baseFormat = in.getFormat();
 			AudioFormat decf = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
 					baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
 			din = AudioSystem.getAudioInputStream(decf, in);
 			// Play now.
-			// rawplay(decf, din);
-			// in.close();
+			rawplay(decf, din);
 		}
 		catch (Exception e) {
 			// Handle exception.
@@ -42,6 +42,7 @@ public class Test {
 		if (line != null) {
 			// Start
 			line.start();
+			@SuppressWarnings("unused")
 			int nBytesRead = 0, nBytesWritten = 0;
 			while (nBytesRead != -1) {
 				nBytesRead = din.read(data, 0, data.length);

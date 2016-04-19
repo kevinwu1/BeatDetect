@@ -18,17 +18,17 @@ public class AudioBeatPlayer implements Runnable {
 
 	AudioBeatPlayer(File f, BeatAnalyze[] ba) throws UnsupportedAudioFileException, IOException,
 			LineUnavailableException {
+		name = f.getName();
 		if (f.getName().lastIndexOf("mp3") == f.getName().length() - 3) {
+			@SuppressWarnings("resource")
 			AudioInputStream in = AudioSystem.getAudioInputStream(f);
 			baseFormat = in.getFormat();
 			AudioFormat decf = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(), 16,
 					baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
 			System.out.println(decf);
 
-			AudioInputStream deci = AudioSystem.getAudioInputStream(decf, in);
-			ais = deci;
-			int t = (int) (decf.getSampleRate() / BEATS_PER_SEC);
-			BUFFER_SIZE = 4096;
+			ais = AudioSystem.getAudioInputStream(decf, in);
+			BUFFER_SIZE = (int) (decf.getSampleRate() / BEATS_PER_SEC);
 			DataLine.Info info = new DataLine.Info(SourceDataLine.class, decf);
 			sourceLine = (SourceDataLine) AudioSystem.getLine(info);
 		}
@@ -45,6 +45,7 @@ public class AudioBeatPlayer implements Runnable {
 	}
 
 	AudioBeatPlayer(AudioInputStream ais, BeatAnalyze[] ba) throws LineUnavailableException {
+		name = "";
 		this.ais = ais;
 		baseFormat = ais.getFormat();
 		// System.out.println("Sample Rate: " + format.getSampleRate());
@@ -54,6 +55,7 @@ public class AudioBeatPlayer implements Runnable {
 		this.ba = ba;
 	}
 
+	private String name;
 	private final int BUFFER_SIZE;
 	private final int BEATS_PER_SEC = 10;
 	private final AudioFormat baseFormat;
@@ -64,8 +66,6 @@ public class AudioBeatPlayer implements Runnable {
 	private void play() throws IOException, LineUnavailableException, InterruptedException {
 		sourceLine.open();
 		sourceLine.start();
-		AudioInputStream din = ais;
-		byte[] b = new byte[4096];
 		int nBytesRead = 0;
 		byte[] abData = new byte[BUFFER_SIZE];
 		@SuppressWarnings("unused")
@@ -79,7 +79,7 @@ public class AudioBeatPlayer implements Runnable {
 			Thread.sleep(1);
 			what++;
 		}
-		System.out.println("Finished");
+		System.out.println("Finished: " + name);
 		ais.close();
 		sourceLine.close();
 	}

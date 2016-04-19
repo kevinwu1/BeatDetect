@@ -1,6 +1,6 @@
 package soundTest;
 
-public class MaxBeatAnalyzer implements BeatAnalyze {
+public class MaxBeatAnalyzer extends VisualizableBeatAnalyze {
 
 	private final VolumeQueue vq;
 	private double volume;
@@ -31,10 +31,12 @@ public class MaxBeatAnalyzer implements BeatAnalyze {
 				return ret;
 			}
 		};
+		v = new Visualizer[0];
 	}
 
 	@Override
 	public void analyze(byte[] data) {
+		boolean beat = false;
 		calcVolume(data);
 		double nv = vq.get();
 		// System.out.println(nv);
@@ -48,10 +50,13 @@ public class MaxBeatAnalyzer implements BeatAnalyze {
 					volume = newV + 1;
 				else
 					volume = newV;
+				beat = true;
 			}
 			chainStart = nv;
 			chainLen = 0;
 		}
+		for (Visualizer vi : v)
+			vi.add((int) nv, beat);
 		pv = nv;
 	}
 
@@ -69,6 +74,11 @@ public class MaxBeatAnalyzer implements BeatAnalyze {
 
 	@Override
 	public double getVolume() {
-		return volume * 6;
+		return scale(volume);
 	}
+
+	private double scale(double vol) {
+		return vol * 6;
+	}
+
 }

@@ -62,11 +62,19 @@ public class VisWrap implements Runnable {
 		// v.setUndecorated(true);
 	}
 
+	int getRight() {
+		return v.getX() + v.getWidth();
+	}
+
+	int getHeight() {
+		return v.getHeight();
+	}
+
 	@Override
 	public void run() {
 		try {
 			while (true) {
-				v.canvas().repaint();
+				v.panel().repaint();
 				Thread.sleep(1);
 			}
 		}

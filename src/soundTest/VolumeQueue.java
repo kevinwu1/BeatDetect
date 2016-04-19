@@ -29,6 +29,24 @@ public class VolumeQueue {
 		return ret;
 	}
 
+	double getDev(int n) {
+		double r = 0;
+		double su = 0;
+		int s2 = s;
+		for (int i = 0; i < n; i++) {
+			su += data[s2];
+			s2 = p(s2);
+		}
+		su /= n;
+		s2 = s;
+		for (int i = 0; i < n; i++) {
+			double d = data[s2] - su;
+			r += d * d;
+			s2 = p(s2);
+		}
+		return Math.sqrt(r);
+	}
+
 	int n(int i) {
 		return (i + 1) % N;
 	}

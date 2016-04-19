@@ -1,6 +1,6 @@
 package soundTest;
 
-public class StdDevBeatAnalyzer implements BeatAnalyze {
+public class StdDevBeatAnalyzer extends VisualizableBeatAnalyze {
 
 	private final VolumeQueue vq;
 	private double volume;
@@ -32,19 +32,21 @@ public class StdDevBeatAnalyzer implements BeatAnalyze {
 				return ret;
 			}
 		};
+		v = new Visualizer[0];
 	}
 
 	@Override
 	public void analyze(byte[] data) {
 		calcVolume(data);
 		double nv = vq.get();
-		// System.out.println(nv);
+		boolean beat = false;
 		if (nv >= pv)
 			chainLen++;
 		else {
 			double diff = pv - chainStart;
 			if (chainLen >= chain && diff > dif) {
 				double newV = nv;
+				beat = true;
 				if (newV == volume)
 					volume = newV + 1;
 				else
@@ -53,6 +55,8 @@ public class StdDevBeatAnalyzer implements BeatAnalyze {
 			chainStart = nv;
 			chainLen = 0;
 		}
+		for (Visualizer vi : v)
+			vi.add((int) scale(nv) / 5, beat);
 		pv = nv;
 	}
 
@@ -80,6 +84,10 @@ public class StdDevBeatAnalyzer implements BeatAnalyze {
 
 	@Override
 	public double getVolume() {
-		return (volume - 40) * 30;
+		return scale(volume);
+	}
+
+	private double scale(double v) {
+		return (v - 40) * 30;
 	}
 }
